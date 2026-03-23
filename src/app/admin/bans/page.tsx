@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { rankBandOptions } from "@/lib/constants";
 import { prisma } from "@/lib/db";
+import { readFallbackBans } from "@/lib/utils";
 
 export default async function AdminBansPage() {
   const [maps, banRules] = await Promise.all([
@@ -125,26 +126,14 @@ export default async function AdminBansPage() {
                   <Label>Fallback attackers</Label>
                   <Input
                     name="fallbackAttackText"
-                    defaultValue={
-                      typeof rule.fallbackBans === "object" &&
-                      rule.fallbackBans &&
-                      Array.isArray((rule.fallbackBans as { attack?: unknown }).attack)
-                        ? ((rule.fallbackBans as { attack: string[] }).attack).join(", ")
-                        : ""
-                    }
+                    defaultValue={readFallbackBans(rule.fallbackBans).attack.join(", ")}
                   />
                 </div>
                 <div className="grid gap-2">
                   <Label>Fallback defenders</Label>
                   <Input
                     name="fallbackDefenseText"
-                    defaultValue={
-                      typeof rule.fallbackBans === "object" &&
-                      rule.fallbackBans &&
-                      Array.isArray((rule.fallbackBans as { defense?: unknown }).defense)
-                        ? ((rule.fallbackBans as { defense: string[] }).defense).join(", ")
-                        : ""
-                    }
+                    defaultValue={readFallbackBans(rule.fallbackBans).defense.join(", ")}
                   />
                 </div>
                 <div className="grid gap-2">

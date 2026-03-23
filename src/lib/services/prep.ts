@@ -111,13 +111,14 @@ function filterRelevantPatchNotes(
 }
 
 export async function getPrepDetailData(options: PrepDetailOptions) {
-  const [map, operators, patchNotes] = await Promise.all([
+  const [mapWithBans, operators, patchNotes] = await Promise.all([
     prisma.map.findUnique({
       where: {
         slug: options.mapSlug,
       },
       include: {
         sites: true,
+        banRules: true,
       },
     }),
     prisma.operator.findMany({
@@ -136,15 +137,17 @@ export async function getPrepDetailData(options: PrepDetailOptions) {
     }),
   ]);
 
-  if (!map) {
+  if (!mapWithBans) {
     return null;
   }
 
-  const site = map.sites.find((entry) => entry.slug === options.siteSlug);
+  const site = mapWithBans.sites.find((entry) => entry.slug === options.siteSlug);
 
   if (!site) {
     return null;
   }
+
+  const map = mapWithBans;
 
   const [strategies, notes, squads, banRecommendation] = await Promise.all([
     prisma.strategyCard.findMany({
@@ -183,13 +186,16 @@ export async function getPrepDetailData(options: PrepDetailOptions) {
       },
       take: 8,
     }),
-    getBanRecommendation({
-      mapSlug: map.slug,
-      rankBand: options.rankBand,
-      comfortOperators: options.comfortOperators,
-      playstyle: "BALANCED",
-      stackSize: options.stackSize,
-    }),
+    getBanRecommendation(
+      {
+        mapSlug: map.slug,
+        rankBand: options.rankBand,
+        comfortOperators: options.comfortOperators,
+        playstyle: "BALANCED",
+        stackSize: options.stackSize,
+      },
+      { map: mapWithBans, operators },
+    ),
   ]);
 
   const operatorNameBySlug = new Map(

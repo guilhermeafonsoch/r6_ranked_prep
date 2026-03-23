@@ -174,7 +174,6 @@ export default async function PlaybookDetailPage({
                   <Button formAction={deleteSquadMemberAction} variant="destructive">
                     Delete
                   </Button>
-                  <input type="hidden" name="id" value={member.id} />
                 </div>
               </form>
             ))}

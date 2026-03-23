@@ -3,6 +3,7 @@ import { ArrowRight, BookText, Layers3, NotebookPen } from "lucide-react";
 
 import { MapSelector } from "@/components/map-selector";
 import { PatchUpdateCard } from "@/components/patches/patch-update-card";
+import { RotationEventCard } from "@/components/patches/rotation-event-card";
 import { RecentPlansPanel } from "@/components/recent-plans-panel";
 import { EmptyState } from "@/components/states/empty-state";
 import { Badge } from "@/components/ui/badge";
@@ -175,24 +176,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent className="grid gap-3">
             {rotationEvents.map((event) => (
-              <div
-                key={event.id}
-                className="rounded-xl border border-[color:var(--border-subtle)] bg-[color:var(--surface-0)] p-4"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <Badge variant="amber">{event.seasonTag}</Badge>
-                  <p className="text-xs uppercase tracking-[0.14em] text-[color:var(--text-subtle)]">
-                    {event.effectiveDate.toLocaleDateString()}
-                  </p>
-                </div>
-                <p className="mt-3 text-sm text-[color:var(--text-muted)]">
-                  Added: {(event.addedMaps as string[]).join(", ")} · Removed:{" "}
-                  {(event.removedMaps as string[]).join(", ")}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[color:var(--text-muted)]">
-                  {event.notes}
-                </p>
-              </div>
+              <RotationEventCard key={event.id} {...event} />
             ))}
           </CardContent>
         </Card>

@@ -30,6 +30,11 @@ function ensureAdminEnabled() {
 function revalidateAdminPath(path: string) {
   revalidatePath("/admin");
   revalidatePath(path);
+  revalidatePath("/");
+  revalidatePath("/prep");
+  revalidatePath("/bans");
+  revalidatePath("/patches");
+  revalidatePath("/playbook");
 }
 
 export async function saveMapAction(formData: FormData) {

@@ -51,30 +51,64 @@ function chooseBan(
   };
 }
 
+type PreFetchedData = {
+  map: {
+    slug: string;
+    name: string;
+    banRules: {
+      id: string;
+      rankBand: RankBand;
+      attackBan: string;
+      defenseBan: string;
+      rationale: string;
+      fallbackBans: unknown;
+      weight: number;
+    }[];
+  };
+  operators: {
+    slug: string;
+    name: string;
+    roleTags: unknown;
+  }[];
+};
+
 export async function getBanRecommendation(
   input: BanAssistantInput,
+  preFetched?: PreFetchedData,
 ): Promise<BanRecommendation | null> {
-  const map = await prisma.map.findUnique({
-    where: {
-      slug: input.mapSlug,
-    },
-    include: {
-      banRules: true,
-    },
-  });
+  let map: PreFetchedData["map"] | null;
+  let operators: PreFetchedData["operators"];
+
+  if (preFetched) {
+    map = preFetched.map;
+    operators = preFetched.operators;
+  } else {
+    map = await prisma.map.findUnique({
+      where: {
+        slug: input.mapSlug,
+      },
+      include: {
+        banRules: true,
+      },
+    });
+
+    if (!map) {
+      return null;
+    }
+
+    operators = await prisma.operator.findMany({
+      where: {
+        active: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    });
+  }
 
   if (!map) {
     return null;
   }
-
-  const operators = await prisma.operator.findMany({
-    where: {
-      active: true,
-    },
-    orderBy: {
-      name: "asc",
-    },
-  });
 
   const operatorNameBySlug = new Map(
     operators.map((operator) => [operator.slug, operator.name]),
@@ -189,9 +223,16 @@ export async function getBanRecommendation(
     comfortSet,
   );
 
-  const attackBan = operatorNameBySlug.get(attackChoice.primary) ?? attackChoice.primary;
-  const defenseBan =
-    operatorNameBySlug.get(defenseChoice.primary) ?? defenseChoice.primary;
+  const attackBan = attackChoice.primary
+    ? operatorNameBySlug.get(attackChoice.primary) ?? attackChoice.primary
+    : null;
+  const defenseBan = defenseChoice.primary
+    ? operatorNameBySlug.get(defenseChoice.primary) ?? defenseChoice.primary
+    : null;
+
+  if (!attackBan || !defenseBan) {
+    return null;
+  }
 
   return {
     mapName: map.name,

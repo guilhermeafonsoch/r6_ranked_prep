@@ -1,13 +1,15 @@
 import { ShieldAlert } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 type ErrorStateProps = {
   title: string;
   description: string;
+  reset?: () => void;
 };
 
-export function ErrorState({ title, description }: ErrorStateProps) {
+export function ErrorState({ title, description, reset }: ErrorStateProps) {
   return (
     <Card className="border-rose-500/20">
       <CardHeader>
@@ -17,8 +19,13 @@ export function ErrorState({ title, description }: ErrorStateProps) {
         </CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
-      <CardContent className="text-sm text-[color:var(--text-subtle)]">
-        Check the seeded database content or refresh the route once the action completes.
+      <CardContent className="flex items-center gap-4 text-sm text-[color:var(--text-subtle)]">
+        <span>Check the seeded database content or refresh the route once the action completes.</span>
+        {reset ? (
+          <Button variant="outline" size="sm" onClick={reset}>
+            Try again
+          </Button>
+        ) : null}
       </CardContent>
     </Card>
   );

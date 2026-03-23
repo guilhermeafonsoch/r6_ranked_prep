@@ -25,8 +25,6 @@ export const metadata: Metadata = {
     "A second-screen tactical prep app for Rainbow Six Siege ranked matches.",
 };
 
-export const dynamic = "force-dynamic";
-
 export default async function RootLayout({
   children,
 }: Readonly<{
